@@ -11,7 +11,7 @@ from .squeezenet import SqueezeNet
 from .squeezenext import SqueezeNeXt
 from .mobilevit import MobileViT
 from .stackedlstm import StackedLSTM
-from .distilbert import DistilBert
+
 from .mobilebert import MobileBert
 from .squeezebert import SqueezeBert
 from .logreg import LogReg

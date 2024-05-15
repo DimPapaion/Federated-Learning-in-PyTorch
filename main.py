@@ -60,7 +60,7 @@ if __name__ == "__main__":
     #####################
     # Default arguments #
     #####################
-    parser.add_argument('--exp_name', help='name of the experiment', type=str, required=True)
+    parser.add_argument('--exp_name', help='name of the experiment', type=str, required=False, default="test_1")
     parser.add_argument('--seed', help='global random seed', type=int, default=5959)
     parser.add_argument('--device', help='device to use; `cpu`, `cuda`, `cuda:GPU_NUMBER`', type=str, default='cpu')
     parser.add_argument('--data_path', help='path to save & read raw data', type=str, default='./data')
@@ -68,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument('--result_path', help='path to save results', type=str, default='./result')
     parser.add_argument('--use_tb', help='use TensorBoard for log tracking (if passed)', action='store_true')
     parser.add_argument('--tb_port', help='TensorBoard port number (valid only if `use_tb`)', type=int, default=6006)
-    parser.add_argument('--tb_host', help='TensorBoard host address (valid only if `use_tb`)', type=str, default='0.0.0.0')
+    parser.add_argument('--tb_host', help='TensorBoard host address (valid only if `use_tb`)', type=str, default='192.168.1.126')
     
     #####################
     # Dataset arguments #
@@ -79,10 +79,10 @@ if __name__ == "__main__":
     - text classification datasets in `torchtext.datasets`,
     - LEAF benchmarks [ FEMNIST | Sent140 | Shakespeare | CelebA | Reddit ],
     - among [ TinyImageNet | CINIC10 | SpeechCommands | BeerReviewsA | BeerReviewsL | Heart | Adult | Cover | GLEAM ]
-    ''', type=str, required=True)
+    ''', type=str, required=False, default='MNIST')
     parser.add_argument('--test_size', help='a fraction of local hold-out dataset for evaluation (-1 for assigning pre-defined test split as local holdout set)', type=float, choices=[Range(-1, 1.)], default=0.2)
     parser.add_argument('--rawsmpl', help='a fraction of raw data to be used (valid only if one of `LEAF` datasets is used)', type=float, choices=[Range(0., 1.)], default=1.0)
-    
+
     ## data augmentation arguments
     parser.add_argument('--resize', help='resize input images (using `torchvision.transforms.Resize`)', type=int, default=None)
     parser.add_argument('--crop', help='crop input images (using `torchvision.transforms.CenterCrop` (for evaluation) and `torchvision.transforms.RandomCrop` (for training))', type=int, default=None)
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     - `patho`: pathological non-IID split scenario proposed in (McMahan et al., 2016),
     - `diri`: Dirichlet distribution-based split scenario proposed in (Hsu et al., 2019),
     - `pre`: pre-defined data split scenario
-    ''', type=str, choices=['iid', 'unbalanced', 'patho', 'diri', 'pre'], required=True)
+    ''', type=str, choices=['iid', 'unbalanced', 'patho', 'diri', 'pre'], required=False, default='iid')
     parser.add_argument('--mincls', help='the minimum number of distinct classes per client (valid only if `split_type` is `patho` or `diri`)', type=int, default=2)
     parser.add_argument('--cncntrtn', help='a concentration parameter for Dirichlet distribution (valid only if `split_type` is `diri`)', type=float, default=0.1)
     
@@ -118,7 +118,7 @@ if __name__ == "__main__":
             'StackedLSTM', 'StackedTransformer', 'LogReg', 'M5',
             'DistilBert', 'SqueezeBert', 'MobileBert'
         ],
-        required=True
+        required=False, default='SimpleCNN'
     )
     parser.add_argument('--hidden_size', help='hidden channel size for vision models, or hidden dimension of language models', type=int, default=64)
     parser.add_argument('--dropout', help='dropout rate', type=float, choices=[Range(0., 1.)], default=0.1)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     ## federated learning settings
     parser.add_argument('--algorithm', help='federated learning algorithm to be used', type=str,
         choices=['fedavg', 'fedsgd', 'fedprox', 'fedavgm'], 
-        required=True
+        required=False, default='fedavg'
     )
     parser.add_argument('--eval_type', help='''the evaluation type of a model trained from FL algorithm
     - `local`: evaluation of personalization model on local hold-out dataset  (i.e., evaluate personalized models using each client\'s local evaluation set)
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     - 'both': combination of `local` and `global` setting
     ''', type=str,
         choices=['local', 'global', 'both'],
-        required=True
+        required=False, default='both'
     )
     parser.add_argument('--eval_fraction', help='fraction of randomly selected (unparticipated) clients for the evaluation (valid only if `eval_type` is `local` or `both`)', type=float, choices=[Range(1e-8, 1.)], default=1.)
     parser.add_argument('--eval_every', help='frequency of the evaluation (i.e., evaluate peformance of a model every `eval_every` round)', type=int, default=1)
@@ -153,9 +153,9 @@ if __name__ == "__main__":
         choices=[
             'acc1', 'acc5', 'auroc', 'auprc', 'youdenj', 'f1', 'precision', 'recall',
             'seqacc', 'mse', 'mae', 'mape', 'rmse', 'r2', 'd2'
-        ], nargs='+', required=True
+        ], nargs='+', required=False, default='acc1'
     )
-    parser.add_argument('--K', help='number of total cilents participating in federated training', type=int, default=100)
+    parser.add_argument('--K', help='number of total cilents participating in federated training', type=int, default=1000)
     parser.add_argument('--R', help='number of total federated learning rounds', type=int, default=1000)
     parser.add_argument('--C', help='sampling fraction of clients per round (full participation when 0 is passed)', type=float, choices=[Range(0., 1.)], default=0.1)
     parser.add_argument('--E', help='number of local epochs', type=int, default=5)
@@ -164,14 +164,14 @@ if __name__ == "__main__":
     
     # optimization arguments
     parser.add_argument('--no_shuffle', help='do not shuffle data when training (if passed)', action='store_true')
-    parser.add_argument('--optimizer', help='type of optimization method (NOTE: should be a sub-module of `torch.optim`, thus case-sensitive)', type=str, default='SGD', required=True)
+    parser.add_argument('--optimizer', help='type of optimization method (NOTE: should be a sub-module of `torch.optim`, thus case-sensitive)', type=str, default='SGD', required=False)
     parser.add_argument('--max_grad_norm', help='a constant required for gradient clipping', type=float, choices=[Range(0., float('inf'))], default=0.)
-    parser.add_argument('--weight_decay', help='weight decay (L2 penalty)', type=float, choices=[Range(0., 1.)], default=0)
-    parser.add_argument('--momentum', help='momentum factor', type=float, choices=[Range(0., 1.)], default=0.)
-    parser.add_argument('--lr', help='learning rate for local updates in each client', type=float, choices=[Range(0., 100.)], default=0.01, required=True)
+    parser.add_argument('--weight_decay', help='weight decay (L2 penalty)', type=float, choices=[Range(0., 1.)], default=5e-4)
+    parser.add_argument('--momentum', help='momentum factor', type=float, choices=[Range(0., 1.)], default=0.9)
+    parser.add_argument('--lr', help='learning rate for local updates in each client', type=float, choices=[Range(0., 100.)], default=0.01, required=False)
     parser.add_argument('--lr_decay', help='decay rate of learning rate', type=float, choices=[Range(0., 1.)], default=1.0)
     parser.add_argument('--lr_decay_step', help='intervals of learning rate decay', type=int, default=20)
-    parser.add_argument('--criterion', help='objective function (NOTE: should be a submodule of `torch.nn`, thus case-sensitive)', type=str, required=True)
+    parser.add_argument('--criterion', help='objective function (NOTE: should be a submodule of `torch.nn`, thus case-sensitive)', type=str, required=False, default='CrossEntropyLoss')
     parser.add_argument('--mu', help='constant for proximity regularization term (valid only if the algorithm is `fedprox`)', type=float, choices=[Range(0., 1e6)], default=0.01)
 
     # parse arguments
